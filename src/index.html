@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #007BFF;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        input[type="file"] {
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 4px;
+            width: 100%;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Face Recognition API</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="fileInput">Upload your image:</label><br><br>
+        <input type="file" id="fileInput" name="image" accept="image/*" required><br><br>
+        <button type="submit">Unlock</button>
+    </form>
+    
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('fileInput');
+            formData.append('image', fileInput.files[0]);
+
+            try {
+                const response = await fetch('http://localhost:6868/unlock', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                const resultDiv = document.getElementById('result');
+
+                if (result.status === "unlocked") {
+                    resultDiv.style.backgroundColor = "#d4edda";
+                    resultDiv.style.color = "#155724";
+                    resultDiv.innerText = "Unlocked: The face was recognized.";
+                } else if (result.status === "locked") {
+                    resultDiv.style.backgroundColor = "#f8d7da";
+                    resultDiv.style.color = "#721c24";
+                    resultDiv.innerText = "Locked: The face was not recognized.";
+                } else if (result.status === "no_face_detected") {
+                    resultDiv.style.backgroundColor = "#fff3cd";
+                    resultDiv.style.color = "#856404";
+                    resultDiv.innerText = "No Face Detected: Please upload a valid image.";
+                } else if (result.error) {
+                    resultDiv.style.backgroundColor = "#f8d7da";
+                    resultDiv.style.color = "#721c24";
+                    resultDiv.innerText = "Error: " + result.error;
+                }
+            } catch (error) {
+                document.getElementById('result').innerText = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -42,4 +42,3 @@ if __name__ == "__main__":
     save_file(dataset_path, embeddings_path, mtcnn, resnet)
     print("Done!")
     
-
